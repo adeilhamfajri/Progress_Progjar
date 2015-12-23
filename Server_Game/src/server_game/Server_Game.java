@@ -9,6 +9,8 @@ import java.io.DataOutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.io.IOException;
 
 /**
  *
@@ -45,6 +47,15 @@ class ClientThread extends Thread{
             os.println("Bismillah...");
             
             
+            for(int i=0; i< max_clients; i++){
+                if(threads[i] == this){
+                    threads[i] = null;
+                }
+            }
+            
+            is.close();
+            os.close();
+            client_socket.close();
         }catch(Exception e) {
             //.....
         }
@@ -58,7 +69,7 @@ public class Server_Game {
     private static Socket client_socket = null;
     
     private static final int max_clients = 2;
-    private static final ClientThread[] thread = new ClientThread[max_clients];
+    private static final ClientThread[] threads = new ClientThread[max_clients];
     
     
     public static void main(String[] args) {
@@ -71,7 +82,35 @@ public class Server_Game {
 //            port_number = Integer.valueOf(args[0].intValue());
         }
         
+        //instansiasi server socket
+        try{
+            server_socket = new ServerSocket(port_number);
+        }catch(Exception e){
+            System.out.println(e);
+        }
         
-       
+        //Ciptakan sebuah client socket untuk setiap koneksi, lalu langsung passing ke new client thread
+        while(true){
+            
+            try{
+                client_socket = server_socket.accept();
+                int i = 0;
+                for(i=0; i < max_clients; i++){
+                    if(threads[i] == null){ //jika threads ke i belum ada, maka instansiasi
+                        (threads[i]  = new ClientThread(client_socket, threads)).start();
+                        break;
+                    } 
+                }
+                
+                if(i == max_clients){
+                    PrintStream os = new PrintStream(client_socket.getOutputStream());
+                    os.println("Server too busy");
+                    os.close();
+                    client_socket.close();
+                }
+            }catch(Exception e){
+                System.out.println(e);
+            }
+        }    
     }
 }
