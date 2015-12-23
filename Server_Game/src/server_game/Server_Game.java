@@ -58,10 +58,19 @@ public class Server_Game {
     private static Socket client_socket = null;
     
     private static final int max_clients = 2;
-//    private static final clientThread[] thread = new 
+    private static final ClientThread[] thread = new ClientThread[max_clients];
+    
     
     public static void main(String[] args) {
         // TODO code application logic here
+        int port_number = 3250;
+        
+        if(args.length < 1){
+            System.out.println("Selamat Datang di server Game Juara Satu !");
+        }else{
+//            port_number = Integer.valueOf(args[0].intValue());
+        }
+        
         
        
     }
